@@ -73,16 +73,30 @@ class GrindrUser:
         self.xmppToken = response["xmppToken"]
 
     @check_banned
-    def getProfiles(self, lat, lon):
+    def getProfiles(self, lat, lon, **filters):
+        """
+        Get nearby profiles with optional filters
+        
+        Args:
+            lat (float): Latitude
+            lon (float): Longitude
+            **filters: Optional keyword arguments for filtering:
+                - onlineOnly (bool): Only online profiles
+                - photoOnly (bool): Only profiles with photo
+                - faceOnly (bool): Only profiles with face photo
+                - fresh (bool): New profiles only
+                - pageNumber (int): Page number (default: 1)
+                - rightNow (bool): Available right now
+        """
         params = {
             "nearbyGeoHash": to_geohash(lat, lon),
-            "onlineOnly": "false",
-            "photoOnly": "false",
-            "faceOnly": "false",
+            "onlineOnly": str(filters.get("onlineOnly", False)).lower(),
+            "photoOnly": str(filters.get("photoOnly", False)).lower(),
+            "faceOnly": str(filters.get("faceOnly", False)).lower(),
             "notRecentlyChatted": "false",
-            "fresh": "false",
-            "pageNumber": "1",
-            "rightNow": "false",
+            "fresh": str(filters.get("fresh", False)).lower(),
+            "pageNumber": str(filters.get("pageNumber", 1)),
+            "rightNow": str(filters.get("rightNow", False)).lower(),
         }
 
         response = generic_get(
