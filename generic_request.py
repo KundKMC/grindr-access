@@ -207,5 +207,10 @@ def generic_get(path, data, auth_token=None, proxy=None, proxy_port=None):
 
     response_data = b"".join(response_data)
 
-    decompressed_response = zlib.decompress(response_data, zlib.MAX_WBITS | 16)
-    return json.loads(decompressed_response)
+    # Try gzip decompression first, fallback to raw JSON if it fails
+    try:
+        decompressed_response = zlib.decompress(response_data, zlib.MAX_WBITS | 16)
+        return json.loads(decompressed_response)
+    except zlib.error:
+        # Response is not compressed, parse directly
+        return json.loads(response_data)
